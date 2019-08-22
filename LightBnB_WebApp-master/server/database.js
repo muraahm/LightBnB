@@ -1,10 +1,4 @@
-const { Pool } = require('pg');
-const pool = new Pool({
-  user: 'vagrant',
-  password: '123',
-  host: 'localhost',
-  database: 'lightbnb'
-});
+const db = require('./db.js');
 const properties = require('./json/properties.json');
 const users = require('./json/users.json');
 
@@ -18,7 +12,7 @@ const users = require('./json/users.json');
 const getUserWithEmail = function (email) {
   const query = `SELECT * FROM users WHERE email = $1`;
   let user;
-  return pool.query(query, [email])
+  return db.query(query, [email])
     .then(res => {
       user = res.rows[0];
       if (user) {
@@ -39,7 +33,7 @@ const getUserWithId = function (id) {
   const query = `SELECT * FROM users WHERE id = $1`;
   let user;
   const inputId = id
-  return pool.query(query, [inputId])
+  return db.query(query, [inputId])
     .then(res => {
       user = res.rows[0];
       if (user) {
@@ -62,7 +56,7 @@ const addUser = function (user) {
   const inputEmail = user.email;
   const inputName = user.name;
   const inputPassword = user.password;
-  return pool.query(query, [inputName, inputEmail, inputPassword])
+  return db.query(query, [inputName, inputEmail, inputPassword])
     .then(res => res.rows[0])
     .catch(err => console.error('query error', err.stack));
 }
@@ -88,7 +82,7 @@ const getAllReservations = function (guest_id, limit = 10) {
   ORDER BY reservations.start_date
   LIMIT $2;`;
 
-  return pool.query(query, [inputGuest_id, inputLimit])
+  return db.query(query, [inputGuest_id, inputLimit])
     .then(res => res.rows[0])
     .catch(err => console.error('query error', err.stack));
 }
@@ -163,7 +157,7 @@ const getAllProperties = function(options, limit = 10) {
   //console.log(query, queryParams);
   
 
-  return pool.query(query, queryParams)
+  return db.query(query, queryParams)
     .then(res => res.rows);
 };
 
@@ -180,7 +174,7 @@ const addProperty = function (property) {
     street, city, province, post_code, country, parking_spaces, number_of_bathrooms, number_of_bedrooms) VALUES ($1, $2, $3, $4, $5, $6, $7
       $8, $9, $10, $11, $12, $13, $14) RETURNING *;`;
 
-  return pool.query(query, [property.owner_id, property.title, property.description, property.thumbnail_photo_url, property.cover_photo_url,
+  return db.query(query, [property.owner_id, property.title, property.description, property.thumbnail_photo_url, property.cover_photo_url,
     property.cost_per_night, property.street, property.city, property.province, property.post_code, property.country, property.parking_spaces,
   property.number_of_bathrooms, property.number_of_bedrooms])
     .then(res => res.rows[0])
